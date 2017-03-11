@@ -2,6 +2,18 @@ package development.crymble.jack.poolsimulator;
 
 /**
  * Created by jackc on 09/03/2017.
+ *
+ *          P1----C2------P2------C3-------P3
+ *          |     |                        |
+ *          |     |                        |
+ *          C1    |                *       C4
+ *          |     |                        |
+ *          |     |                        |
+ *          P6----C6------P5------C5-------P4
+ *
+ *          Where C# is a cushion with its own values and P# is a pocket with its own values.
+ *          This should allow for a ball to miss the cushion and go into the pocket.
+ *
  */
 
 public class ScreenDimensions {
@@ -9,21 +21,52 @@ public class ScreenDimensions {
     public static float screen_width;
     public static float screen_height;
 
+    //C1
     public static float top_rail_x;
     public static float top_rail_y;
     public static float top_rail_length;
 
+    //C4
     public static float bottom_rail_x;
     public static float bottom_rail_y;
     public static float bottom_rail_length;
 
+    //C5 && C6
     public static float left_rail_x;
     public static float left_rail_y;
     public static float left_rail_length;
 
+    //C2 && C3
     public static float right_rail_x;
     public static float right_rail_y;
     public static float right_rail_length;
+
+    //All pockets have the same radius
+    public static float P_radius;
+    
+    //P1
+    public static float P1_x;
+    public static float P1_y;
+
+    //P2
+    public static float P2_x;
+    public static float P2_y;
+
+    //P3
+    public static float P3_x;
+    public static float P3_y;
+
+    //P4
+    public static float P4_x;
+    public static float P4_y;
+
+    //P5
+    public static float P5_x;
+    public static float P5_y;
+
+    //P6
+    public static float P6_x;
+    public static float P6_y;
 
     public static void setScreen_width(float screen_width) {
         ScreenDimensions.screen_width = screen_width;
