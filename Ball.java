@@ -15,14 +15,14 @@ public class Ball {
     }
 
     private final float DECELERATION = 0.02f;
-    private final float MINIMUMSPEED = 1.25f;
+    private final float MINIMUMSPEED = 1.20f;
     private final float MAXIMUMSPEED = 50.0f;
 
     private float x, y; //used to get balls position on the table
     private float vx, vy; //used to get velocity of the ball
     private Colour colour; //obviously different balls have different properties.
     private float radius; //Will be used for collision detection
-    private boolean isMoving;
+    private boolean isMoving, isActive;
     private Bitmap bitmap;
 
     public Ball(float x, float y, Colour colour, Bitmap bitmap){
@@ -30,6 +30,7 @@ public class Ball {
         this.y = y;
         this.colour = colour;
         this.isMoving = false;
+        this.isActive = true;
         this.bitmap = bitmap;
         this.radius = bitmap.getHeight() / 2;
     }
@@ -37,19 +38,22 @@ public class Ball {
     public Ball(float x, float y, Colour colour, Boolean toTheLeft, Bitmap bitmap){
         this.colour = colour;
         this.isMoving = false;
+        this.isActive = true;
         this.bitmap = bitmap;
         this.radius = bitmap.getHeight() / 2;
         setTriangleCoords(x, y, toTheLeft);
     }
 
     public void draw(Canvas canvas){
-        canvas.drawBitmap(bitmap, x, y, null);
-        if((x + vx)< 0 || (x + bitmap.getWidth() + vx) > canvas.getWidth()){
-            hitEndCushion();
-        }
-        if((y + vy) < 0 || (y  + bitmap.getHeight() + vy) > canvas.getHeight()){
-            hitSideCushion();
-        }
+            canvas.drawBitmap(bitmap, x, y, null);
+            //TODO: account for table cushions.
+            //TODO: What if it hits a pocket?
+            if ((x + vx) < ScreenDimensions.top_rail_x || (x + bitmap.getWidth() + vx) > ScreenDimensions.bottom_rail_x) {
+                hitEndCushion();
+            }
+            if ((y + vy) < ScreenDimensions.right_rail_y || (y + bitmap.getHeight() + vy) > ScreenDimensions.left_rail_y) {
+                hitSideCushion();
+            }
     }
 
     public void update(){
@@ -147,6 +151,8 @@ public class Ball {
     public boolean isMoving(){
         return isMoving;
     }
+
+    public boolean isActive() { return isActive; }
 
     //Setters
 
