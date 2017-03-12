@@ -77,6 +77,9 @@ public class Ball {
             else if (vx < 0 && vx > -MINIMUMSPEED && vy > 0 && vy < MINIMUMSPEED) {
                 isMoving = false;
             }
+            if(vx == 0 && vy == 0){
+                isMoving = false;
+            }
 
             print();
         }
@@ -148,11 +151,9 @@ public class Ball {
         return bitmap;
     }
 
-    public boolean isMoving(){
-        return isMoving;
-    }
-
     public boolean isActive() { return isActive; }
+
+    public boolean isMoving() { return isMoving;}
 
     //Setters
 
@@ -172,8 +173,10 @@ public class Ball {
         this.vy = vy;
     }
 
+    public void setMoving(){this.isMoving = true;}
+
     public void print(){
-        System.out.printf("Colour: %s\nRadius: %f\nX: %f\tY: %f\nVX: %f\tVY: %f\n", colour, radius, x, y, vx, vy);
+        System.out.printf("Colour: %s\nRadius: %f\nX: %f\tY: %f\nVX: %f\tVY: %f\nIsMoving: %s\n", colour, radius, x, y, vx, vy, isMoving);
         System.out.println("--------------------------------------");
     }
 

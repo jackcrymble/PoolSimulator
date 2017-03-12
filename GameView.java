@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 /**
@@ -21,17 +22,16 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     Table table;
 
     // Declare an object of type Bitmap
-    Bitmap bitmapTable;
-    Bitmap bitmapCueBall;
-    Bitmap bitmapRedBall;
-    Bitmap bitmapYellowBall;
-    Bitmap bitmapBlackBall;
+    private Bitmap bitmapTable, bitmapCueBall, bitmapRedBall, bitmapYellowBall, bitmapBlackBall;
 
     //Declare a Ball object
     Ball cueBall;
     Ball redBall1, redBall2, redBall3, redBall4, redBall5, redBall6, redBall7;
     Ball yellowBall1, yellowBall2, yellowBall3, yellowBall4, yellowBall5, yellowBall6, yellowBall7;
     Ball blackBall;
+
+    //Declare ArrayList for activeBalls
+    private ArrayList<Ball> activeBalls;
 
     public GameView(Context context) {
         // The next line of code asks the
@@ -86,6 +86,25 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
         //Initialise fifth column of triangle
         yellowBall7 = new Ball(redBall7.getX(), redBall7.getY(), Ball.Colour.YELLOW, false, bitmapYellowBall);
 
+        activeBalls = new ArrayList<>();
+
+        activeBalls.add(cueBall);
+        activeBalls.add(blackBall);
+        activeBalls.add(redBall1);
+        activeBalls.add(redBall2);
+        activeBalls.add(redBall3);
+        activeBalls.add(redBall4);
+        activeBalls.add(redBall5);
+        activeBalls.add(redBall6);
+        activeBalls.add(redBall7);
+        activeBalls.add(yellowBall1);
+        activeBalls.add(yellowBall2);
+        activeBalls.add(yellowBall3);
+        activeBalls.add(yellowBall4);
+        activeBalls.add(yellowBall5);
+        activeBalls.add(yellowBall6);
+        activeBalls.add(yellowBall7);
+
     }
 
     @Override
@@ -121,7 +140,12 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
     // In later projects we will have dozens (arrays) of objects.
     // We will also do other things like collision detection.
     public void update() {
-        cueBall.update();
+
+        activeBalls = new CollisionDetector(activeBalls).update();
+
+        for(Ball ball : activeBalls){
+            ball.update();
+        }
     }
 
     // Draw the newly updated scene
@@ -129,26 +153,9 @@ public class GameView extends SurfaceView implements SurfaceHolder.Callback {
 
         table.draw(canvas);
 
-        //Draw cueball at its current position
-        cueBall.draw(canvas);
-
-        redBall1.draw(canvas);
-        redBall2.draw(canvas);
-        redBall3.draw(canvas);
-        redBall4.draw(canvas);
-        redBall5.draw(canvas);
-        redBall6.draw(canvas);
-        redBall7.draw(canvas);
-
-        blackBall.draw(canvas);
-
-        yellowBall1.draw(canvas);
-        yellowBall2.draw(canvas);
-        yellowBall3.draw(canvas);
-        yellowBall4.draw(canvas);
-        yellowBall5.draw(canvas);
-        yellowBall6.draw(canvas);
-        yellowBall7.draw(canvas);
+        for(Ball ball : activeBalls){
+            ball.draw(canvas);
+        }
 
     }
 
