@@ -1,6 +1,7 @@
 package development.crymble.jack.poolsimulator;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by jackc on 11/03/2017.
@@ -22,17 +23,29 @@ public class CollisionDetector {
     // Ball to Ball collision
 
     public void checkBallCollisions() {
-        for (int i = 0; i < allBalls.size(); i++) {
 
-            for (int j = i + 1; j < allBalls.size(); j++) {
-                if ((allBalls.get(i).getPosition().getX() + allBalls.get(i).getRadius()) < (allBalls.get(j).getPosition().getX() - allBalls.get(j).getRadius()))
+        Iterator<Ball> iterator_i = allBalls.iterator();
+
+        while(iterator_i.hasNext()) {
+
+            Ball i = iterator_i.next();
+
+            Iterator<Ball> iterator_j = allBalls.iterator();
+
+            while(iterator_j.hasNext()) {
+
+                Ball j = iterator_j.next();
+
+                if(i.equals(j)) continue;
+
+                if ((i.getPosition().getX() + i.getRadius()) < (j.getPosition().getX() - j.getRadius()))
                     break;
 
-                if ((allBalls.get(i).getPosition().getY() + allBalls.get(i).getRadius()) < (allBalls.get(j).getPosition().getY() - allBalls.get(j).getRadius()) ||
-                        (allBalls.get(j).getPosition().getY() + allBalls.get(j).getRadius()) < (allBalls.get(i).getPosition().getY() - allBalls.get(i).getRadius()))
+                if ((i.getPosition().getY() + i.getRadius()) < (j.getPosition().getY() - j.getRadius()) ||
+                        (j.getPosition().getY() + j.getRadius()) < (i.getPosition().getY() - i.getRadius()))
                     continue;
 
-                allBalls.get(i).resolveCollision(allBalls.get(j));
+                i.resolveCollision(j);
 
             }
         }

@@ -2,6 +2,7 @@ package development.crymble.jack.poolsimulator;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.Log;
 
 /**
  * Created by jackc on 26/02/2017.
@@ -35,6 +36,8 @@ public class Ball {
     }
 
     public Ball(float x, float y, Colour colour, Boolean toTheLeft, Bitmap bitmap){
+        this.position = new Vector2d(x, y);
+        this.velocity = new Vector2d(0,0);
         this.colour = colour;
         this.isMoving = false;
         this.isActive = true;
@@ -72,7 +75,7 @@ public class Ball {
                 isMoving = false;
             }
 
-            print();
+            //print();
         }
     }
 
@@ -91,6 +94,8 @@ public class Ball {
         Movement m = new Movement(angle, force);
         this.velocity = m.getVelocity();
     }
+
+
 
     private void applyFriction(){
         Vector2d friction = new Vector2d(this.velocity.getX() * DECELERATION, this.velocity.getY() * DECELERATION);
@@ -162,13 +167,12 @@ public class Ball {
         Vector2d impulse = mtd.multiply(i);
 
         // change in momentum
-        this.velocity = this.velocity.add(impulse.multiply(m1));
-        ball.velocity = ball.velocity.subtract(impulse.multiply(m2));
+        this.isMoving = true;
+        this.velocity = this.velocity.add(impulse);
+        ball.isMoving = true;
+        ball.velocity = ball.velocity.subtract(impulse);
 
-        //TODO: Adjust to make right
-        this.velocity = this.velocity.add(new Vector2d(50.0f, 50.0f));
-        ball.velocity = ball.velocity.add(new Vector2d(50.0f, 50.0f));
-
+        Log.d("Ball Collision:", "This: " + this.getColour() + ", Ball: " + ball.getColour());
     }
 
     //Getters
