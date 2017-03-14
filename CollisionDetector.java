@@ -1,7 +1,5 @@
 package development.crymble.jack.poolsimulator;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 /**
@@ -11,61 +9,55 @@ import java.util.ArrayList;
 public class CollisionDetector {
 
     private ArrayList<Ball> allBalls;
-    private ArrayList<Ball> movingBalls;
 
     public CollisionDetector(ArrayList<Ball> allBalls){
-
         this.allBalls = allBalls;
-
     }
 
-    public ArrayList<Ball> update(){
-        movingBalls = new ArrayList<>();
+    public void update(){
+        checkBallCollisions();
+        checkWallCollisions();
+    }
 
-        for(Ball ball : allBalls) {
-            if (ball.isMoving()) {
-                movingBalls.add(ball);
+    // Ball to Ball collision
+
+    public void checkBallCollisions() {
+        for (int i = 0; i < allBalls.size(); i++) {
+
+            for (int j = i + 1; j < allBalls.size(); j++) {
+                if ((allBalls.get(i).getPosition().getX() + allBalls.get(i).getRadius()) < (allBalls.get(j).getPosition().getX() - allBalls.get(j).getRadius()))
+                    break;
+
+                if ((allBalls.get(i).getPosition().getY() + allBalls.get(i).getRadius()) < (allBalls.get(j).getPosition().getY() - allBalls.get(j).getRadius()) ||
+                        (allBalls.get(j).getPosition().getY() + allBalls.get(j).getRadius()) < (allBalls.get(i).getPosition().getY() - allBalls.get(i).getRadius()))
+                    continue;
+
+                allBalls.get(i).resolveCollision(allBalls.get(j));
+
             }
         }
+    }
 
-        for(int i = 0; i < movingBalls.size(); i++){
-            for(int j = 1; j < allBalls.size(); j++){
-                if(checkCollision(allBalls.get(i), allBalls.get(j))){
-                    ballCollision(allBalls.get(i), allBalls.get(j));
-                }
+    private void checkWallCollisions() {
+        for (int i = 0; i < allBalls.size(); i++) {
+            if (allBalls.get(i).getPosition().getX() - allBalls.get(i).getRadius() < ScreenDimensions.top_rail_x) { //Left Wall
+                allBalls.get(i).getPosition().setX(ScreenDimensions.top_rail_x + (allBalls.get(i).getRadius() * 2)); // Place ball against edge
+                allBalls.get(i).hitEndCushion();
+            }
+            else if (allBalls.get(i).getPosition().getX() + allBalls.get(i).getRadius() > ScreenDimensions.bottom_rail_x){ // Right Wall
+                allBalls.get(i).getPosition().setX(ScreenDimensions.bottom_rail_x - (allBalls.get(i).getRadius() * 2));// Place ball against edge
+                allBalls.get(i).hitEndCushion();
+            }
+
+            if (allBalls.get(i).getPosition().getY() - allBalls.get(i).getRadius() < ScreenDimensions.right_rail_y){// Top Wall
+                allBalls.get(i).getPosition().setY(ScreenDimensions.right_rail_y + (allBalls.get(i).getRadius() * 2));// Place ball against edge
+                allBalls.get(i).hitSideCushion();
+            }
+            else if (allBalls.get(i).getPosition().getY() + allBalls.get(i).getRadius() > ScreenDimensions.left_rail_y){ // Bottom Wall
+                allBalls.get(i).getPosition().setY(ScreenDimensions.left_rail_y - (allBalls.get(i).getRadius() * 2));// Place ball against edge
+                allBalls.get(i).hitSideCushion();
             }
         }
-        return allBalls;
     }
-
-    public void ballCollision(Ball one, Ball two){
-        two.setMoving();
-        two.setVx(one.getVx());
-        two.setVy(one.getVy());
-        one.setVx(one.getVx() / 2);
-        one.setVy(one.getVy() / 2);
-    }
-
-    public boolean checkCollision(Ball one, Ball two){
-
-        //Most likely the same ball
-        if(one.getX() == two.getX() && one.getY() == two.getY()){
-            return false;
-        }
-
-        if(one.getVx() == 0 || one.getVy() == 0){
-            return false;
-        }
-
-        double dx = one.getX() - two.getX();
-        double dy = one.getY() - two.getY();
-        double distance = Math.sqrt(dx * dx + dy * dy);
-
-        if(distance < one.getRadius() + two.getRadius()){
-            Log.d(("Collision detection"), "Collision between two allBalls.");
-            return true;
-        }
-        return false;
-    }
-
 }
+

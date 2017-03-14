@@ -124,12 +124,8 @@ public class Movement {
         vy *= force;
     }
 
-    public float getVx(){
-        return vx;
-    }
-
-    public float getVy(){
-        return vy;
+    public Vector2d getVelocity(){
+        return new Vector2d(vx, vy);
     }
 
     public void print(){

@@ -16,18 +16,17 @@ public class Ball {
 
     private final float DECELERATION = 0.02f;
     private final float MINIMUMSPEED = 1.20f;
-    private final float MAXIMUMSPEED = 50.0f;
 
-    private float x, y; //used to get balls position on the table
-    private float vx, vy; //used to get velocity of the ball
+    private Vector2d position; //used to get balls position on the table
+    private Vector2d velocity; //used to get velocity of the ball
     private Colour colour; //obviously different balls have different properties.
     private float radius; //Will be used for collision detection
     private boolean isMoving, isActive;
     private Bitmap bitmap;
 
     public Ball(float x, float y, Colour colour, Bitmap bitmap){
-        this.x = x;
-        this.y = y;
+        this.position = new Vector2d(x, y);
+        this.velocity = new Vector2d(0,0);
         this.colour = colour;
         this.isMoving = false;
         this.isActive = true;
@@ -45,39 +44,31 @@ public class Ball {
     }
 
     public void draw(Canvas canvas){
-            canvas.drawBitmap(bitmap, x, y, null);
-            //TODO: account for table cushions.
-            //TODO: What if it hits a pocket?
-            if ((x + vx) < ScreenDimensions.top_rail_x || (x + bitmap.getWidth() + vx) > ScreenDimensions.bottom_rail_x) {
-                hitEndCushion();
-            }
-            if ((y + vy) < ScreenDimensions.right_rail_y || (y + bitmap.getHeight() + vy) > ScreenDimensions.left_rail_y) {
-                hitSideCushion();
-            }
+            canvas.drawBitmap(bitmap, position.getX(), position.getY(), null);
     }
 
     public void update(){
         if(isMoving) {
-            x += vx;
-            y += vy;
+           position = position.add(velocity);
+
             applyFriction();
             //ball in Q1
-            if (vx > 0 && vx < MINIMUMSPEED && vy > 0 && vy < MINIMUMSPEED) {
+            if (velocity.getX() > 0 && velocity.getX() < MINIMUMSPEED && velocity.getY() > 0 && velocity.getY() < MINIMUMSPEED) {
                 isMoving = false;
             }
             //ball in Q2
-            else if (vx > 0 && vx < MINIMUMSPEED && vy < 0 && vy > -MINIMUMSPEED) {
+            else if (velocity.getX() > 0 && velocity.getX() < MINIMUMSPEED && velocity.getY() < 0 && velocity.getY() > -MINIMUMSPEED) {
                 isMoving = false;
             }
             //ball in Q3
-            else if (vx < 0 && vx > -MINIMUMSPEED && vy < 0 && vy > -MINIMUMSPEED) {
+            else if (velocity.getX() < 0 && velocity.getX() > -MINIMUMSPEED && velocity.getY() < 0 && velocity.getY() > -MINIMUMSPEED) {
                 isMoving = false;
             }
             //ball in Q4
-            else if (vx < 0 && vx > -MINIMUMSPEED && vy > 0 && vy < MINIMUMSPEED) {
+            else if (velocity.getX() < 0 && velocity.getX() > -MINIMUMSPEED && velocity.getY() > 0 && velocity.getY() < MINIMUMSPEED) {
                 isMoving = false;
             }
-            if(vx == 0 && vy == 0){
+            if(velocity.getX() == 0 && velocity.getY() == 0){
                 isMoving = false;
             }
 
@@ -86,39 +77,98 @@ public class Ball {
     }
 
     public void hitSideCushion(){
-        vy = -vy;
+        Vector2d temp = velocity;
+        velocity = new Vector2d(temp.getX(), -temp.getY());
     }
 
     public void hitEndCushion(){
-        vx = -vx;
+        Vector2d temp = velocity;
+        velocity = new Vector2d(-temp.getX(), temp.getY());
     }
 
     public void hit(float angle, float force){
         isMoving = true;
         Movement m = new Movement(angle, force);
-        this.vx = m.getVx();
-        this.vy = m.getVy();
+        this.velocity = m.getVelocity();
     }
 
     private void applyFriction(){
-        vx -= (vx * DECELERATION);
-        vy -= (vy * DECELERATION);
+        Vector2d friction = new Vector2d(this.velocity.getX() * DECELERATION, this.velocity.getY() * DECELERATION);
+        velocity = velocity.subtract(friction);
     }
 
     public void setTriangleCoords(float relativeX, float relativeY, boolean toTheLeft){
 
             //x coord will be the same no matter which side
-            this.x = relativeX + (bitmap.getWidth() * (float) Math.cos(Math.toRadians(30.0)));
+            float tempX = relativeX + (bitmap.getWidth() * (float) Math.cos(Math.toRadians(30.0)));
+            float tempY = 0.0f;
 
             //y coord will change.
             if(toTheLeft){
                 //Ball is to be positioned behind this x, to the left
-                this.y = relativeY + (bitmap.getHeight() * (float) Math.sin(Math.toRadians(30.0)));
+                tempY = relativeY + (bitmap.getHeight() * (float) Math.sin(Math.toRadians(30.0)));
             }
             else{
                 //Ball is to be positioned behind, but to the right
-                this.y = relativeY - (bitmap.getHeight() * (float) Math.sin(Math.toRadians(30.0)));
+                tempY = relativeY - (bitmap.getHeight() * (float) Math.sin(Math.toRadians(30.0)));
             }
+        this.position = new Vector2d(tempX, tempY);
+    }
+
+    public void resolveCollision(Ball ball)
+    {
+
+        // get the mtd
+        Vector2d delta = (position.subtract(ball.position));
+        float r = getRadius() + ball.getRadius();
+        float dist2 = delta.dot(delta);
+
+        if (dist2 > r*r) return; // they aren't colliding
+
+
+        float d = delta.getLength();
+
+        Vector2d mtd;
+        if (d != 0.0f)
+        {
+            mtd = delta.multiply(((getRadius() + ball.getRadius())-d)/d); // minimum translation distance to push balls apart after intersecting
+
+        }
+        else // Special case. Balls are exactly on top of eachother.  Don't want to divide by zero.
+        {
+            d = ball.getRadius() + getRadius() - 1.0f;
+            delta = new Vector2d(ball.getRadius() + getRadius(), 0.0f);
+
+            mtd = delta.multiply(((getRadius() + ball.getRadius())-d)/d);
+        }
+
+        // resolve intersection
+        float m1 = 1; // inverse mass quantities
+        float m2 = 1;
+
+        // push-pull them apart
+        position = position.add(mtd.multiply(m1 / (m1 + m2)));
+        ball.position = ball.position.subtract(mtd.multiply(m2 / (m1 + m2)));
+
+        // impact speed
+        Vector2d v = (this.velocity.subtract(ball.velocity));
+        float vn = v.dot(mtd.normalize());
+
+        // sphere intersecting but moving away from each other already
+        if (vn > 0.0f) return;
+
+        // collision impulse
+        float i = (-(1.0f + ScreenDimensions.restitution) * vn) / (m1 + m2);
+        Vector2d impulse = mtd.multiply(i);
+
+        // change in momentum
+        this.velocity = this.velocity.add(impulse.multiply(m1));
+        ball.velocity = ball.velocity.subtract(impulse.multiply(m2));
+
+        //TODO: Adjust to make right
+        this.velocity = this.velocity.add(new Vector2d(50.0f, 50.0f));
+        ball.velocity = ball.velocity.add(new Vector2d(50.0f, 50.0f));
+
     }
 
     //Getters
@@ -127,20 +177,12 @@ public class Ball {
         return radius;
     }
 
-    public float getX() {
-        return x;
+    public Vector2d getPosition(){
+        return position;
     }
 
-    public float getY() {
-        return y;
-    }
-
-    public float getVx() {
-        return vx;
-    }
-
-    public float getVy() {
-        return vy;
+    public Vector2d getVelocity(){
+        return velocity;
     }
 
     public Colour getColour() {
@@ -157,26 +199,14 @@ public class Ball {
 
     //Setters
 
-    public void setX(float x) {
-        this.x = x;
-    }
+    public void setPosition(){
 
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public void setVx(float vx) {
-        this.vx = vx;
-    }
-
-    public void setVy(float vy) {
-        this.vy = vy;
     }
 
     public void setMoving(){this.isMoving = true;}
 
     public void print(){
-        System.out.printf("Colour: %s\nRadius: %f\nX: %f\tY: %f\nVX: %f\tVY: %f\nIsMoving: %s\n", colour, radius, x, y, vx, vy, isMoving);
+        System.out.printf("Colour: %s\nRadius: %f\nPosition: %s\nVelocity: %s\nIsMoving: %s\n", colour, radius, position.toString(), velocity.toString(), isMoving);
         System.out.println("--------------------------------------");
     }
 

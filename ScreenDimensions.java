@@ -18,6 +18,8 @@ package development.crymble.jack.poolsimulator;
 
 public class ScreenDimensions {
 
+    public static final float restitution = 0.85f;
+
     public static float screen_width;
     public static float screen_height;
 
