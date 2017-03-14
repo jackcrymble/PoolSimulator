@@ -40,21 +40,23 @@ public class CollisionDetector {
 
     private void checkWallCollisions() {
         for (int i = 0; i < allBalls.size(); i++) {
-            if (allBalls.get(i).getPosition().getX() - allBalls.get(i).getRadius() < ScreenDimensions.top_rail_x) { //Left Wall
-                allBalls.get(i).getPosition().setX(ScreenDimensions.top_rail_x + (allBalls.get(i).getRadius() * 2)); // Place ball against edge
+            //Check collision on top and bottom cushions
+            if (allBalls.get(i).getPosition().getX() - allBalls.get(i).getRadius() < ScreenDimensions.top_rail_x) { //Top Rail/Left of screen
+                allBalls.get(i).getPosition().setX(ScreenDimensions.top_rail_x + allBalls.get(i).getRadius()); // Place ball against edge
                 allBalls.get(i).hitEndCushion();
             }
-            else if (allBalls.get(i).getPosition().getX() + allBalls.get(i).getRadius() > ScreenDimensions.bottom_rail_x){ // Right Wall
-                allBalls.get(i).getPosition().setX(ScreenDimensions.bottom_rail_x - (allBalls.get(i).getRadius() * 2));// Place ball against edge
+            else if (allBalls.get(i).getPosition().getX() + allBalls.get(i).getRadius() > ScreenDimensions.bottom_rail_x){ // Bottom rail/Right of screen
+                allBalls.get(i).getPosition().setX(ScreenDimensions.bottom_rail_x - allBalls.get(i).getRadius());// Place ball against edge
                 allBalls.get(i).hitEndCushion();
             }
-
-            if (allBalls.get(i).getPosition().getY() - allBalls.get(i).getRadius() < ScreenDimensions.right_rail_y){// Top Wall
-                allBalls.get(i).getPosition().setY(ScreenDimensions.right_rail_y + (allBalls.get(i).getRadius() * 2));// Place ball against edge
+            
+            //Check collision on side cushions
+            if (allBalls.get(i).getPosition().getY() - allBalls.get(i).getRadius() < ScreenDimensions.right_rail_y){// Right rail/top of screen
+                allBalls.get(i).getPosition().setY(ScreenDimensions.right_rail_y + allBalls.get(i).getRadius());// Place ball against edge
                 allBalls.get(i).hitSideCushion();
             }
-            else if (allBalls.get(i).getPosition().getY() + allBalls.get(i).getRadius() > ScreenDimensions.left_rail_y){ // Bottom Wall
-                allBalls.get(i).getPosition().setY(ScreenDimensions.left_rail_y - (allBalls.get(i).getRadius() * 2));// Place ball against edge
+            else if (allBalls.get(i).getPosition().getY() + allBalls.get(i).getRadius() > ScreenDimensions.left_rail_y){ // Left Rail/bottom of screen
+                allBalls.get(i).getPosition().setY(ScreenDimensions.left_rail_y - allBalls.get(i).getRadius());// Place ball against edge
                 allBalls.get(i).hitSideCushion();
             }
         }
