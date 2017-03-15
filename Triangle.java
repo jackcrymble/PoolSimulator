@@ -22,5 +22,9 @@ public class Triangle {
 
         return balls;
     }
-
+    
+    public ArrayList<Ball> getTriangle(){
+        return balls;
+    }
+    
 }
